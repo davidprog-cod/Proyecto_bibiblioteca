@@ -1,30 +1,23 @@
 """
 =========================================================
 Archivo:
-usuario_controller.py
-
-Ubicación:
-controllers/
+controllers/usuario_controller.py
 
 Responsabilidad:
-Controlar reglas del módulo usuarios.
+Controlar la lógica de usuarios entre
+Vista y Modelo.
+
+Arquitectura:
+MVC - Capa Controlador
 =========================================================
 """
 
 
 from models.usuario_model import UsuarioModel
 
-from utils.validaciones import (
-    validar_campo_vacio,
-    validar_correo,
-    validar_cedula
-)
-
-
 
 
 class UsuarioController:
-
 
 
     def __init__(self):
@@ -33,143 +26,83 @@ class UsuarioController:
 
 
 
+    # =====================================================
+    # LOGIN
+    # =====================================================
+
+    def login(self, nombre, password):
+
+
+        usuario = self.modelo.validar_usuario(
+            nombre,
+            password
+        )
+
+
+        return usuario
+
+
+
+    # =====================================================
+    # REGISTRAR USUARIO
+    # =====================================================
+
     def registrar_usuario(
             self,
-            datos
-    ):
-
-
-        if validar_campo_vacio(datos["cedula"]):
-
-            return {
-                "mensaje":
-                "La cédula es obligatoria"
-            }
-
-
-
-        if not validar_cedula(
-            datos["cedula"]
+            nombre,
+            password,
+            rol
         ):
 
-            return {
-                "mensaje":
-                "Cédula incorrecta"
-            }
 
-
-
-        if datos["correo"]:
-
-            if not validar_correo(
-                datos["correo"]
-            ):
-
-                return {
-                    "mensaje":
-                    "Correo inválido"
-                }
-
-
-
-        resultado = self.modelo.insertar_usuario(
-            datos
+        return self.modelo.registrar_usuario(
+            nombre,
+            password,
+            rol
         )
 
 
-        if resultado:
 
-            return {
-                "mensaje":
-                "Usuario registrado correctamente"
-            }
+    # =====================================================
+    # LISTAR USUARIOS
+    # =====================================================
 
+    def obtener_usuarios(self):
 
-
-        return {
-            "mensaje":
-            "Error al registrar usuario"
-        }
-
-
-
-
-
-    def actualizar_usuario(
-            self,
-            id_usuario,
-            datos
-    ):
-
-
-        resultado = self.modelo.actualizar_usuario(
-            id_usuario,
-            datos
-        )
-
-
-        if resultado:
-
-            return {
-                "mensaje":
-                "Usuario actualizado"
-            }
-
-
-
-        return {
-            "mensaje":
-            "No se pudo actualizar"
-        }
-
-
-
-
-
-    def eliminar_usuario(
-            self,
-            id_usuario
-    ):
-
-
-        resultado = self.modelo.eliminar_usuario(
-            id_usuario
-        )
-
-
-        if resultado:
-
-            return {
-                "mensaje":
-                "Usuario eliminado"
-            }
-
-
-
-        return {
-            "mensaje":
-            "No encontrado"
-        }
-
-
-
-
-
-    def listar_usuarios(self):
 
         return self.modelo.obtener_usuarios()
 
 
 
+    # =====================================================
+    # ELIMINAR USUARIO
+    # =====================================================
+
+    def eliminar_usuario(self, id_usuario):
 
 
-    def buscar_usuario(
+        return self.modelo.eliminar_usuario(
+            id_usuario
+        )
+
+
+
+    # =====================================================
+    # ACTUALIZAR USUARIO
+    # =====================================================
+
+    def actualizar_usuario(
             self,
-            criterio,
-            valor
-    ):
+            id_usuario,
+            nombre,
+            password,
+            rol
+        ):
 
-        return self.modelo.buscar_usuario(
-            criterio,
-            valor
+
+        return self.modelo.actualizar_usuario(
+            id_usuario,
+            nombre,
+            password,
+            rol
         )

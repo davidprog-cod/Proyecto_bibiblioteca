@@ -1,11 +1,10 @@
 """
 =========================================================
 Archivo:
-models/usuario_model.py
+models/persona_model.py
 
 Responsabilidad:
-Gestionar todas las operaciones relacionadas
-con los usuarios usando SQLite.
+Gestionar usuarios de biblioteca usando SQLite.
 
 Arquitectura:
 MVC - Capa Modelo
@@ -16,7 +15,8 @@ MVC - Capa Modelo
 import sqlite3
 
 
-class UsuarioModel:
+
+class PersonaModel:
 
 
     def __init__(self):
@@ -26,52 +26,22 @@ class UsuarioModel:
 
 
     # =====================================================
-    # CONEXIÓN A BASE DE DATOS
+    # CONEXIÓN
     # =====================================================
 
     def conectar(self):
 
-        return sqlite3.connect(self.ruta_bd)
-
-
-
-    # =====================================================
-    # BUSCAR USUARIO PARA LOGIN
-    # =====================================================
-
-    def validar_usuario(self, nombre, password):
-
-        conexion = self.conectar()
-
-        cursor = conexion.cursor()
-
-
-        cursor.execute(
-            """
-            SELECT id, nombre, rol
-            FROM usuarios
-            WHERE nombre = ?
-            AND password = ?
-            """,
-            (nombre, password)
+        return sqlite3.connect(
+            self.ruta_bd
         )
 
 
-        usuario = cursor.fetchone()
-
-
-        conexion.close()
-
-
-        return usuario
-
-
 
     # =====================================================
-    # REGISTRAR USUARIO
+    # REGISTRAR PERSONA
     # =====================================================
 
-    def registrar_usuario(self, nombre, password, rol):
+    def guardar_persona(self, datos):
 
         conexion = self.conectar()
 
@@ -80,19 +50,21 @@ class UsuarioModel:
 
         cursor.execute(
             """
-            INSERT INTO usuarios
+            INSERT INTO personas
             (
+                codigo,
+                cedula,
                 nombre,
-                password,
-                rol
+                apellido,
+                telefono,
+                correo,
+                direccion
             )
-            VALUES (?, ?, ?)
+
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+
             """,
-            (
-                nombre,
-                password,
-                rol
-            )
+            datos
         )
 
 
@@ -103,10 +75,10 @@ class UsuarioModel:
 
 
     # =====================================================
-    # OBTENER TODOS LOS USUARIOS
+    # MOSTRAR PERSONAS
     # =====================================================
 
-    def obtener_usuarios(self):
+    def obtener_personas(self):
 
         conexion = self.conectar()
 
@@ -115,60 +87,36 @@ class UsuarioModel:
 
         cursor.execute(
             """
-            SELECT id, nombre, rol
-            FROM usuarios
-            """
-        )
-
-
-        usuarios = cursor.fetchall()
-
-
-        conexion.close()
-
-
-        return usuarios
-
-
-
-    # =====================================================
-    # ELIMINAR USUARIO
-    # =====================================================
-
-    def eliminar_usuario(self, id_usuario):
-
-        conexion = self.conectar()
-
-        cursor = conexion.cursor()
-
-
-        cursor.execute(
-            """
-            DELETE FROM usuarios
-            WHERE id = ?
-            """,
-            (id_usuario,)
-        )
-
-
-        conexion.commit()
-
-        conexion.close()
-
-
-
-    # =====================================================
-    # ACTUALIZAR USUARIO
-    # =====================================================
-
-    def actualizar_usuario(
-            self,
-            id_usuario,
+            SELECT
+            id,
+            codigo,
+            cedula,
             nombre,
-            password,
-            rol
-        ):
+            apellido,
+            telefono,
+            correo,
+            direccion
 
+            FROM personas
+            """
+        )
+
+
+        personas = cursor.fetchall()
+
+
+        conexion.close()
+
+
+        return personas
+
+
+
+    # =====================================================
+    # BUSCAR PERSONA
+    # =====================================================
+
+    def buscar_persona(self, texto):
 
         conexion = self.conectar()
 
@@ -177,19 +125,88 @@ class UsuarioModel:
 
         cursor.execute(
             """
-            UPDATE usuarios
-            SET nombre = ?,
-                password = ?,
-                rol = ?
+            SELECT *
+            FROM personas
 
-            WHERE id = ?
+            WHERE codigo LIKE ?
+            OR cedula LIKE ?
+            OR nombre LIKE ?
+
             """,
             (
-                nombre,
-                password,
-                rol,
-                id_usuario
+                "%" + texto + "%",
+                "%" + texto + "%",
+                "%" + texto + "%"
             )
+        )
+
+
+        resultado = cursor.fetchall()
+
+
+        conexion.close()
+
+
+        return resultado
+
+
+
+    # =====================================================
+    # ACTUALIZAR PERSONA
+    # =====================================================
+
+    def actualizar_persona(self, datos):
+
+        conexion = self.conectar()
+
+        cursor = conexion.cursor()
+
+
+        cursor.execute(
+            """
+            UPDATE personas
+
+            SET
+            codigo=?,
+            cedula=?,
+            nombre=?,
+            apellido=?,
+            telefono=?,
+            correo=?,
+            direccion=?
+
+            WHERE id=?
+
+            """,
+            datos
+        )
+
+
+        conexion.commit()
+
+        conexion.close()
+
+
+
+    # =====================================================
+    # ELIMINAR PERSONA
+    # =====================================================
+
+    def eliminar_persona(self, id_persona):
+
+        conexion = self.conectar()
+
+        cursor = conexion.cursor()
+
+
+        cursor.execute(
+            """
+            DELETE FROM personas
+
+            WHERE id=?
+
+            """,
+            (id_persona,)
         )
 
 

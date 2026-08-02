@@ -83,11 +83,14 @@ class MenuPrincipal:
     def abrir_usuarios(self):
 
 
-        ventana = tk.Toplevel(
-            self.ventana
-        )
+     ventana = tk.Toplevel(
+         self.ventana
+      )
 
 
-        Usuarios(
-            ventana
-        )
+     ventana.grab_set()
+
+
+     Usuarios(
+         ventana
+     )

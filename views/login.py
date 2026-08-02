@@ -1,62 +1,70 @@
 """
 =========================================================
-Archivo: login.py
+Archivo:
+views/login.py
 
-Ubicación:
-Proyecto_biblioteca/views/
+Responsabilidad:
+Ventana de inicio de sesión.
 
-Descripción:
-Ventana inicial de acceso al sistema.
-
-Actualmente funciona como pantalla inicial.
-Posteriormente se conectará con usuarios y roles.
+Arquitectura:
+MVC - Capa Vista
 =========================================================
 """
 
 
 import tkinter as tk
-
 from tkinter import messagebox
 
-from views.menu import MenuPrincipal
-
-
+from controllers.usuario_controller import UsuarioController
 
 
 
 class Login:
-
-    """
-    Ventana de inicio de sesión.
-    """
-
 
 
     def __init__(self, ventana):
 
         self.ventana = ventana
 
+
         self.ventana.title(
-            "Login - Biblioteca"
+            "Sistema de Gestión Bibliotecaria"
         )
+
 
         self.ventana.geometry(
             "400x300"
         )
 
 
+        self.ventana.resizable(
+            False,
+            False
+        )
+        self.ventana.iconbitmap(
+        "assets/biblioteca.ico"
+        )
+
+        self.controlador = UsuarioController()
+
+
         self.crear_interfaz()
 
 
+
+    # =====================================================
+    # CREAR INTERFAZ
+    # =====================================================
 
     def crear_interfaz(self):
 
 
         titulo = tk.Label(
             self.ventana,
-            text="Sistema de Gestión Bibliotecaria",
-            font=("Arial",14,"bold")
+            text="Inicio de Sesión",
+            font=("Arial",18)
         )
+
 
         titulo.pack(
             pady=20
@@ -66,7 +74,7 @@ class Login:
 
         tk.Label(
             self.ventana,
-            text="Usuario"
+            text="Usuario:"
         ).pack()
 
 
@@ -75,13 +83,14 @@ class Login:
             self.ventana
         )
 
+
         self.usuario.pack()
 
 
 
         tk.Label(
             self.ventana,
-            text="Contraseña"
+            text="Contraseña:"
         ).pack()
 
 
@@ -91,6 +100,7 @@ class Login:
             show="*"
         )
 
+
         self.password.pack()
 
 
@@ -98,8 +108,10 @@ class Login:
         boton = tk.Button(
             self.ventana,
             text="Ingresar",
-            command=self.ingresar
+            width=15,
+            command=self.iniciar_sesion
         )
+
 
         boton.pack(
             pady=20
@@ -107,35 +119,70 @@ class Login:
 
 
 
+    # =====================================================
+    # VALIDAR LOGIN
+    # =====================================================
+
+    def iniciar_sesion(self):
 
 
-    def ingresar(self):
+        nombre = self.usuario.get()
 
-        """
-        Acceso temporal.
+        password = self.password.get()
 
-        Posteriormente se validará
-        contra usuarios y roles.
-        """
 
-        if self.usuario.get():
+
+        resultado = self.controlador.login(
+            nombre,
+            password
+        )
+
+
+
+        if resultado:
+
+
+            messagebox.showinfo(
+                "Acceso correcto",
+                "Bienvenido al sistema"
+            )
 
 
             self.ventana.destroy()
 
 
-            nueva = tk.Tk()
 
-            MenuPrincipal(nueva)
+            # Abrir menú principal
+
+            from views.menu_principal import MenuPrincipal
 
 
-            nueva.mainloop()
+            nueva_ventana = tk.Tk()
+
+
+            MenuPrincipal(
+                nueva_ventana
+            )
+
+
+            nueva_ventana.mainloop()
 
 
 
         else:
 
-            messagebox.showwarning(
-                "Aviso",
-                "Ingrese usuario"
+
+            messagebox.showerror(
+                "Error",
+                "Usuario o contraseña incorrectos"
             )
+
+
+
+    # =====================================================
+    # MOSTRAR VENTANA
+    # =====================================================
+
+    def mostrar(self):
+
+        self.ventana.mainloop()

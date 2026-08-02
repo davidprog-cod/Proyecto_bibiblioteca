@@ -1,32 +1,22 @@
 """
 =========================================================
-Archivo: usuarios.py
+Archivo:
+views/usuarios.py
 
-Ubicación:
-Proyecto_biblioteca/views/
+Responsabilidad:
+Interfaz gráfica del módulo Gestión de Usuarios Biblioteca.
 
-Descripción:
-Interfaz gráfica del módulo Usuarios.
-
-No contiene:
-- SQL
-- Consultas
-- Reglas de negocio
-
-Todo se comunica mediante UsuarioController.
+Arquitectura:
+MVC
 =========================================================
 """
 
 
 import tkinter as tk
 
-
 from tkinter import ttk, messagebox
 
-
-from controllers.usuario_controller import UsuarioController
-
-
+from controllers.persona_controller import PersonaController
 
 
 
@@ -48,27 +38,36 @@ class Usuarios:
             "950x600"
         )
 
-        self.ventana.iconbitmap(
-            "assets/images (1).ico"
+
+        try:
+
+            self.ventana.iconbitmap(
+            "assets/biblioteca.ico"
         )
 
-        self.controlador = UsuarioController()
+        except:
+
+            pass
 
 
-        self.id_usuario = None
+
+        self.controlador = PersonaController()
+
 
 
         self.crear_formulario()
 
+        self.crear_botones()
 
         self.crear_tabla()
-
 
         self.cargar_usuarios()
 
 
 
-
+    # =====================================================
+    # FORMULARIO
+    # =====================================================
 
     def crear_formulario(self):
 
@@ -76,7 +75,6 @@ class Usuarios:
         frame = tk.Frame(
             self.ventana
         )
-
 
         frame.pack(
             pady=10
@@ -97,124 +95,118 @@ class Usuarios:
         ]
 
 
-
         self.campos = {}
 
 
 
-        for i, texto in enumerate(etiquetas):
+        for i, etiqueta in enumerate(etiquetas):
 
 
             tk.Label(
+
                 frame,
-                text=texto
+
+                text=etiqueta
+
             ).grid(
+
                 row=i,
+
                 column=0,
-                padx=5,
+
+                padx=10,
+
                 pady=5
+
             )
 
 
             entrada = tk.Entry(
+
                 frame,
+
                 width=35
+
             )
 
 
             entrada.grid(
+
                 row=i,
+
                 column=1
+
             )
 
 
-            self.campos[texto] = entrada
+            self.campos[etiqueta] = entrada
 
 
 
+    # =====================================================
+    # BOTONES
+    # =====================================================
+
+    def crear_botones(self):
 
 
-        botones = tk.Frame(
+        frame = tk.Frame(
             self.ventana
         )
 
-
-        botones.pack(
+        frame.pack(
             pady=10
         )
 
 
+        botones = [
 
-        tk.Button(
-            botones,
-            text="Nuevo",
-            command=self.nuevo
-        ).grid(
-            row=0,
-            column=0,
-            padx=5
-        )
+            ("Nuevo", self.nuevo),
 
+            ("Guardar", self.guardar),
 
+            ("Actualizar", self.actualizar),
 
-        tk.Button(
-            botones,
-            text="Guardar",
-            command=self.guardar
-        ).grid(
-            row=0,
-            column=1,
-            padx=5
-        )
+            ("Buscar", self.buscar),
+
+            ("Cancelar", self.nuevo),
+
+            ("Eliminar", self.eliminar),
+
+            ("Volver", self.cerrar)
+
+        ]
 
 
 
-        tk.Button(
-            botones,
-            text="Actualizar",
-            command=self.actualizar
-        ).grid(
-            row=0,
-            column=2,
-            padx=5
-        )
+        for i, boton in enumerate(botones):
+
+
+            tk.Button(
+
+                frame,
+
+                text=boton[0],
+
+                width=12,
+
+                command=boton[1]
+
+            ).grid(
+
+                row=0,
+
+                column=i,
+
+                padx=5
+
+            )
 
 
 
-        tk.Button(
-            botones,
-            text="Buscar",
-            command=self.buscar
-        ).grid(
-            row=0,
-            column=3,
-            padx=5
-        )
-
-
-
-        tk.Button(
-            botones,
-            text="Cancelar",
-            command=self.nuevo
-        ).grid(
-            row=0,
-            column=4,
-            padx=5
-        )
-
-        tk.Button(
-        botones,
-        text="Eliminar",
-        command=self.eliminar
-        ).grid(
-            row=0,
-            column=5,
-            padx=5
-        )
-
-
-
+    # =====================================================
+    # TABLA
+    # =====================================================
 
     def crear_tabla(self):
 
@@ -222,133 +214,145 @@ class Usuarios:
         columnas = (
 
             "Código",
+
             "Cédula",
+
             "Nombre",
+
             "Apellido",
+
             "Teléfono",
+
             "Correo"
 
         )
 
 
         self.tabla = ttk.Treeview(
+
             self.ventana,
+
             columns=columnas,
+
             show="headings"
+
         )
+
 
 
         for columna in columnas:
 
 
             self.tabla.heading(
+
                 columna,
+
                 text=columna
+
             )
 
 
             self.tabla.column(
+
                 columna,
-                width=120
+
+                width=140
+
             )
 
 
 
         self.tabla.pack(
+
             fill="both",
+
             expand=True
+
         )
+
 
 
         self.tabla.bind(
+
             "<<TreeviewSelect>>",
+
             self.seleccionar
+
         )
 
 
 
-
+    # =====================================================
+    # OBTENER DATOS
+    # =====================================================
 
     def obtener_datos(self):
 
 
-        return {
+        return (
 
-            "cedula":
+            self.campos["Código"].get(),
+
             self.campos["Cédula"].get(),
 
-            "nombres":
             self.campos["Nombre"].get(),
 
-            "apellidos":
             self.campos["Apellido"].get(),
 
-            "telefono":
             self.campos["Teléfono"].get(),
 
-            "correo":
             self.campos["Correo"].get(),
 
-            "direccion":
             self.campos["Dirección"].get()
 
-        }
+        )
 
 
 
-
+    # =====================================================
+    # GUARDAR
+    # =====================================================
 
     def guardar(self):
 
 
-        respuesta = self.controlador.registrar_usuario(
-            self.obtener_datos()
-        )
+        try:
 
+            self.controlador.guardar(
 
-        messagebox.showinfo(
-            "Resultado",
-            respuesta["mensaje"]
-        )
+                self.obtener_datos()
 
-
-        self.cargar_usuarios()
-
-
-
-
-
-    def actualizar(self):
-
-
-        if self.id_usuario is None:
-
-            messagebox.showwarning(
-                "Aviso",
-                "Seleccione un usuario"
             )
 
-            return
+
+            messagebox.showinfo(
+
+                "Éxito",
+
+                "Usuario guardado correctamente"
+
+            )
+
+
+            self.cargar_usuarios()
+
+
+        except Exception as error:
+
+
+            messagebox.showerror(
+
+                "Error",
+
+                str(error)
+
+            )
 
 
 
-        respuesta = self.controlador.actualizar_usuario(
-            self.id_usuario,
-            self.obtener_datos()
-        )
-
-
-        messagebox.showinfo(
-            "Resultado",
-            respuesta["mensaje"]
-        )
-
-
-        self.cargar_usuarios()
-
-
-
-
+    # =====================================================
+    # CARGAR TABLA
+    # =====================================================
 
     def cargar_usuarios(self):
 
@@ -359,7 +363,7 @@ class Usuarios:
 
 
 
-        usuarios = self.controlador.listar_usuarios()
+        usuarios = self.controlador.listar()
 
 
 
@@ -374,12 +378,17 @@ class Usuarios:
 
                 values=(
 
-                    usuario["id"],
-                    usuario["cedula"],
-                    usuario["nombres"],
-                    usuario["apellidos"],
-                    usuario["telefono"],
-                    usuario["correo"]
+                    usuario[1],
+
+                    usuario[2],
+
+                    usuario[3],
+
+                    usuario[4],
+
+                    usuario[5],
+
+                    usuario[6]
 
                 )
 
@@ -387,7 +396,9 @@ class Usuarios:
 
 
 
-
+    # =====================================================
+    # SELECCIONAR
+    # =====================================================
 
     def seleccionar(self,event):
 
@@ -395,71 +406,63 @@ class Usuarios:
         seleccionado = self.tabla.selection()
 
 
-
         if seleccionado:
 
 
             datos = self.tabla.item(
+
                 seleccionado
+
             )
 
 
             valores = datos["values"]
 
 
-            self.id_usuario = valores[0]
 
+            campos = [
 
-            self.campos["Código"].delete(0,"end")
+                "Código",
 
-            self.campos["Código"].insert(
-                0,
-                valores[0]
-            )
+                "Cédula",
 
+                "Nombre",
 
-            self.campos["Cédula"].delete(0,"end")
+                "Apellido",
 
-            self.campos["Cédula"].insert(
-                0,
-                valores[1]
-            )
+                "Teléfono",
 
+                "Correo"
 
-            self.campos["Nombre"].delete(0,"end")
-
-            self.campos["Nombre"].insert(
-                0,
-                valores[2]
-            )
-
-
-            self.campos["Apellido"].delete(0,"end")
-
-            self.campos["Apellido"].insert(
-                0,
-                valores[3]
-            )
-
-
-            self.campos["Teléfono"].delete(0,"end")
-
-            self.campos["Teléfono"].insert(
-                0,
-                valores[4]
-            )
-
-
-            self.campos["Correo"].delete(0,"end")
-
-            self.campos["Correo"].insert(
-                0,
-                valores[5]
-            )
+            ]
 
 
 
+            for i,campo in enumerate(campos):
 
+
+                self.campos[campo].delete(
+
+                    0,
+
+                    "end"
+
+                )
+
+
+                self.campos[campo].insert(
+
+                    0,
+
+                    valores[i]
+
+                )
+
+
+
+    # =====================================================
+    # BUSCAR
+    # =====================================================
 
     def buscar(self):
 
@@ -468,9 +471,10 @@ class Usuarios:
 
 
 
-        resultados = self.controlador.buscar_usuario(
-            "nombre",
+        resultados = self.controlador.buscar(
+
             texto
+
         )
 
 
@@ -492,12 +496,17 @@ class Usuarios:
 
                 values=(
 
-                    usuario["id"],
-                    usuario["cedula"],
-                    usuario["nombres"],
-                    usuario["apellidos"],
-                    usuario["telefono"],
-                    usuario["correo"]
+                    usuario[1],
+
+                    usuario[2],
+
+                    usuario[3],
+
+                    usuario[4],
+
+                    usuario[5],
+
+                    usuario[6]
 
                 )
 
@@ -505,17 +514,65 @@ class Usuarios:
 
 
 
+    # =====================================================
+    # ACTUALIZAR
+    # =====================================================
 
+    def actualizar(self):
+
+
+        messagebox.showinfo(
+
+            "Información",
+
+            "Actualización pendiente"
+
+        )
+
+
+
+    # =====================================================
+    # ELIMINAR
+    # =====================================================
+
+    def eliminar(self):
+
+
+        messagebox.showinfo(
+
+            "Información",
+
+            "Eliminación pendiente"
+
+        )
+
+
+
+    # =====================================================
+    # LIMPIAR CAMPOS
+    # =====================================================
 
     def nuevo(self):
 
 
-        self.id_usuario = None
-
-
         for campo in self.campos.values():
 
+
             campo.delete(
+
                 0,
+
                 "end"
+
             )
+
+
+
+    # =====================================================
+    # CERRAR VENTANA
+    # =====================================================
+
+    def cerrar(self):
+
+
+        self.ventana.destroy()

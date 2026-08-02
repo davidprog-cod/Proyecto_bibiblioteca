@@ -1,24 +1,18 @@
 """
 =========================================================
 Archivo:
-crear_bd.py
-
-Ubicación:
-database/
+database/crear_bd.py
 
 Responsabilidad:
-Crear automáticamente la base de datos
-y las tablas iniciales.
+Crear y preparar la base de datos SQLite.
+
+Arquitectura:
+MVC - Capa Database
 =========================================================
 """
 
 
 import sqlite3
-
-
-from database.conexion import ConexionBD
-
-
 
 
 
@@ -27,93 +21,111 @@ class CrearBD:
 
     def __init__(self):
 
-        self.conexion = ConexionBD()
+        self.ruta_bd = "database/biblioteca.db"
 
 
 
-
+    # =====================================================
+    # CREAR BASE DE DATOS
+    # =====================================================
 
     def crear_tablas(self):
 
+        conexion = sqlite3.connect(self.ruta_bd)
 
-        conexion = self.conexion.abrir_conexion()
-
-
-
-        if conexion is None:
-
-            return
+        cursor = conexion.cursor()
 
 
 
-        try:
+        # =================================================
+        # TABLA USUARIOS
+        # =================================================
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS usuarios(
+
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                nombre TEXT NOT NULL UNIQUE,
+
+                password TEXT NOT NULL,
+
+                rol TEXT NOT NULL
+
+            )
+            """
+        )
 
 
-            cursor = conexion.cursor()
 
+        # =================================================
+        # CREAR ADMINISTRADOR INICIAL
+        # =================================================
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM usuarios
+            WHERE nombre = ?
+            """,
+            ("admin",)
+        )
+
+
+        usuario = cursor.fetchone()
+
+
+
+        if usuario is None:
 
 
             cursor.execute(
                 """
+                INSERT INTO usuarios
+                (
+                    nombre,
+                    password,
+                    rol
+                )
 
-                CREATE TABLE IF NOT EXISTS usuarios(
+                VALUES (?, ?, ?)
 
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-                    cedula TEXT NOT NULL UNIQUE,
-
-                    nombres TEXT NOT NULL,
-
-                    apellidos TEXT NOT NULL,
-
-                    telefono TEXT,
-
-                    correo TEXT,
-
-                    direccion TEXT,
-
-                    fecha_registro 
-                    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
-                );
-
-                """
+                """,
+                (
+                    "admin",
+                    "1234",
+                    "Administrador"
+                )
             )
 
+        # =========================================================
+        # TABLA PERSONAS
+        # Gestión de usuarios de la biblioteca
+        # =========================================================
 
+        cursor.execute("""
+    CREATE TABLE IF NOT EXISTS personas (
 
-            conexion.commit()
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
 
+    codigo TEXT UNIQUE NOT NULL,
 
+    cedula TEXT UNIQUE NOT NULL,
 
-            print(
-                "======================================"
-            )
+    nombre TEXT NOT NULL,
 
-            print(
-                "Base de datos creada correctamente."
-            )
+    apellido TEXT NOT NULL,
 
-            print(
-                "Tabla usuarios creada correctamente."
-            )
+    telefono TEXT,
 
-            print(
-                "======================================"
-            )
+    correo TEXT,
 
+    direccion TEXT
 
+)
+""")
 
-        except sqlite3.Error as error:
+        conexion.commit()
 
-
-            print(
-                f"Error creando base de datos: {error}"
-            )
-
-
-
-        finally:
-
-
-            self.conexion.cerrar_conexion()
+        conexion.close()
