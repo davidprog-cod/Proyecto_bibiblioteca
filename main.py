@@ -1,5 +1,18 @@
-def main():
-    print("Sistema Biblioteca Loja Lee")
+"""
+Archivo principal del sistema
+"""
+
+
+from core.app import Aplicacion
+
+
+
+
 
 if __name__ == "__main__":
-    main()
+
+
+    sistema = Aplicacion()
+
+
+    sistema.ejecutar()
